@@ -2,6 +2,7 @@ package com.heyunetwork.demo.service;
 
 import com.heyunetwork.demo.entity.TrainingRecord;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.heyunetwork.demo.entity.vo.TrainingRecordVo;
 
 /**
  * <p>
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface TrainingRecordService extends IService<TrainingRecord> {
 
+    TrainingRecordVo getTrainingRecordAndParticipantById(String id);
 }

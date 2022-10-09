@@ -2,6 +2,7 @@ package com.heyunetwork.demo.mapper;
 
 import com.heyunetwork.demo.entity.TrainingRecord;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.heyunetwork.demo.entity.vo.TrainingRecordVo;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -14,5 +15,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface TrainingRecordMapper extends BaseMapper<TrainingRecord> {
-
+    TrainingRecordVo queryTrainingRecord(String id);
 }

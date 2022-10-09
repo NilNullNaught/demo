@@ -133,12 +133,15 @@ public class StaffController {
             notes = "1.身份证号不可重复，需要校验唯一性；<br>" +
                     "2.身份证号和邮箱地址需要校验格式")
     @PutMapping
-    public R update(@RequestBody StaffInfoVo staffInfoVo, @RequestParam("id") String id) {
+    public R update(@RequestBody StaffInfoVo staffInfoVo) {
 
         // region <- 数据校验 ->
         // 需要校验的字段
         String idcardNumber = staffInfoVo.getIdcardNumber();
         String email = staffInfoVo.getEmail();
+
+        // 新增时不能 VO 中不能有 id
+        staffInfoVo.setId(null);
 
         // 是否修改了邮箱
         if (!isEmptyString(email)) {
@@ -162,9 +165,7 @@ public class StaffController {
         BeanUtils.copyProperties(staffInfoVo, staffInfo);
         // endregion
 
-        UpdateWrapper uw = new UpdateWrapper<StaffInfo>();
-        uw.eq("id", id);
-        staffService.update(staffInfo, uw);
+        staffService.updateById(staffInfo);
 
         return R.ok();
     }

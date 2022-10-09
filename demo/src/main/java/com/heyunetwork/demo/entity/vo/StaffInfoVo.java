@@ -1,5 +1,7 @@
 package com.heyunetwork.demo.entity.vo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -9,6 +11,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StaffInfoVo {
+
+    @ApiModelProperty("员工资料 id")
+    private String id;
 
     @ApiModelProperty("员工姓名")
     private String name;

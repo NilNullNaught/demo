@@ -1,6 +1,9 @@
 server:
   port: 8080
 spring:
+  jackson:
+    parser:
+      allow-unquoted-control-chars: true # 允许json格式数据中存在未转义的字符
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://8.131.72.52:3306/heyunetwork-demo?useUnicode=true&useSSL=true&characterEncoding=utf8&serverTimezone=GMT%2B8
@@ -18,7 +21,7 @@ spring:
       connection-test-query: SELECT 1
       time-zone: GMT+8
 mybatis-plus:
-  mapper-locations: classpath:com/heyunetwork/demo/*/mapper/xml/*.xml
+  mapper-locations: classpath:com/heyunetwork/demo/mapper/xml/*.xml
   global-config:
     db-config:
       logic-delete-value: 1

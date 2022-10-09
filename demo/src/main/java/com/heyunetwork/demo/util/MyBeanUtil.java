@@ -1,7 +1,6 @@
 package com.heyunetwork.demo.util;
 
 
-import com.heyunetwork.demo.util.exceptionhandler.MyException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
