@@ -1,4 +1,4 @@
-package com.heyunetwork.demo.Controller;
+package com.heyunetwork.demo.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,4 +14,5 @@ public class TestController {
     public String helloworld(){
         return "helloworld"+ LocalDateTime.now();
     }
+
 }

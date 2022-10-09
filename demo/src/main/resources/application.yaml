@@ -3,8 +3,8 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://8.131.72.52:3306/NNNnote?useSSL=false&serverTimezone=Asia/Shanghai&allowMultiQueries=true
-    username: Outsider
+    url: jdbc:mysql://8.131.72.52:3306/heyunetwork-demo?useUnicode=true&useSSL=true&characterEncoding=utf8&serverTimezone=GMT%2B8
+    username: root
     password: PASSWORDis1024
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
