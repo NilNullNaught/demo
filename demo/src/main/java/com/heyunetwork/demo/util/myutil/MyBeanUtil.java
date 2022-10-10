@@ -1,4 +1,4 @@
-package com.heyunetwork.demo.util;
+package com.heyunetwork.demo.util.myutil;
 
 
 import org.springframework.beans.BeanUtils;

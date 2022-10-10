@@ -53,23 +53,25 @@ public class StaffController {
     }
 
     @ApiOperation(value = "员工复杂查询",
-            notes = "1.模糊查询；<br>" +
-                    "2.分页查询，可以指定页码、页长；<br>" +
-                    "3.条件查询，查询条件可以为姓名（name）、性别（sex）、部门（department）、学历（formal_schooling）；<br>" +
-                    "4.可以正序或逆序排序")
+            notes = "1.模糊查询；<br>"
+                    + "2.分页查询，可以指定页码（current）、页长（field）；<br>"
+                    + "3.条件查询，查询条件（field）可以为姓名（name）、性别（sex）、部门（department）、学历（formal_schooling）；<br>"
+                    + "4.根据查询条件（field）正序或逆序排序")
     @GetMapping("staffComplexQuery")
-    public R staffComplexQuery(@RequestParam("current") long current,
-                    @RequestParam("size") long size,
-                    @RequestParam("field") String field,
-                    @RequestParam("keyword")String keyword,
-                    @RequestParam(value = "sortAsc",required = false,defaultValue = "true")Boolean sortAsc) {
+    public R staffComplexQuery(@RequestParam("current") long current, @RequestParam("size") long size, @RequestParam(value = "field") String field, @RequestParam(value = "keyword", required = false) String keyword, @RequestParam(value = "sortAsc", required = false, defaultValue = "true") Boolean sortAsc) {
 
         // region <- 数据校验 ->
-        // 校验查询条件是否可用
-        if (StaffConstant.staffQueryFields.contains(field));
+        // 是否进行条件查询
+        if (isEmptyString(keyword)) {
+            keyword = null;
+        }
+        // 校验 field 是否可用
+        if (!StaffConstant.staffQueryFields.contains(field)) {
+            throw new MyException(20001, "不符合规范的查询条件");
+        }
         // endregion
 
-        Map<String, Object> map = staffService.staffComplexQuery(current,size,field,keyword,sortAsc);
+        Map<String, Object> map = staffService.staffComplexQuery(current, size, field, keyword, sortAsc);
         return R.ok().data(map);
     }
 
@@ -77,10 +79,7 @@ public class StaffController {
 
     // region 《=== 新增 ===》
 
-    @ApiOperation(value = "新增一条员工信息",
-            notes = "1.姓名和身份证号是必填项；<br>" +
-                    "2.身份证号不可重复，需要校验唯一性；<br>" +
-                    "3.身份证号和邮箱地址需要校验格式")
+    @ApiOperation(value = "新增一条员工信息", notes = "1.姓名和身份证号是必填项；<br>" + "2.身份证号不可重复，需要校验唯一性；<br>" + "3.身份证号和邮箱地址需要校验格式")
     @PostMapping
     public R add(@RequestBody StaffInfoVo staffInfoVo) {
 
@@ -91,9 +90,7 @@ public class StaffController {
         String email = staffInfoVo.getEmail();
 
         // 必填字段
-        if (isEmptyString(name) ||
-                isEmptyString(idcardNumber)
-        ) {
+        if (isEmptyString(name) || isEmptyString(idcardNumber)) {
             throw new MyException(20001, "姓名和身份证号是必填项");
         }
         // 身份证号格式校验
@@ -101,7 +98,7 @@ public class StaffController {
             throw new MyException(20001, "身份证号格式错误");
         }
         // 是否设置了邮箱
-        if (!isEmptyString(email)){
+        if (!isEmptyString(email)) {
             // 邮箱格式校验
             if (!MyVerifyUtil.emailVerify(email)) {
                 throw new MyException(20001, "邮箱格式错误");
@@ -129,9 +126,7 @@ public class StaffController {
 
     // region 《=== 修改 ===》
 
-    @ApiOperation(value = "修改一条员工数据",
-            notes = "1.身份证号不可重复，需要校验唯一性；<br>" +
-                    "2.身份证号和邮箱地址需要校验格式")
+    @ApiOperation(value = "修改一条员工数据", notes = "1.身份证号不可重复，需要校验唯一性；<br>" + "2.身份证号和邮箱地址需要校验格式")
     @PutMapping
     public R update(@RequestBody StaffInfoVo staffInfoVo) {
 

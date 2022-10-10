@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.heyunetwork.demo.mapper.TrainingRecordMapper">
-    <resultMap type="com.heyunetwork.demo.entity.vo.TrainingRecordVo" id="queryTrainingRecordMap">
-        <id property="id" column="TRid" />
-        <result property="trainingTeacher" column="training_teacher" />
-        <result property="trainingContent" column="training_content" />
-        <result property="trainingDate" column="training_date" />
+    <resultMap type="com.heyunetwork.demo.entity.vo.TrainingRecordVo" id="trainingRecordQueryMap">
+        <id property="id" column="TRid"/>
+        <result property="trainingTeacher" column="training_teacher"/>
+        <result property="trainingContent" column="training_content"/>
+        <result property="trainingDate" column="training_date"/>
 
         <!-- 配置一对多的关系
             property：填写pojo类中集合类类属性的名称
@@ -13,17 +13,17 @@
         -->
         <collection property="list" javaType="list" ofType="com.heyunetwork.demo.entity.vo.StaffInfoVo">
             <!-- 配置主键，是关联Order的唯一标识 -->
-            <id property="id" column="SIid" />
-            <result property="name" column="NAME" />
-            <result property="sex" column="sex" />
-            <result property="department" column="department" />
-            <result property="idcardNumber" column="idcard_number" />
+            <id property="id" column="SIid"/>
+            <result property="name" column="NAME"/>
+            <result property="sex" column="sex"/>
+            <result property="department" column="department"/>
+            <result property="idcardNumber" column="idcard_number"/>
         </collection>
     </resultMap>
 
 
-    <!-- 一对多关联，查询订单同时查询该用户下的订单 -->
-    <select id="queryTrainingRecord" resultMap="queryTrainingRecordMap">
+    <!-- 查询单条培训记录，及本条培训记录下的所有参与人员 -->
+    <select id="trainingRecordQueryById" resultMap="trainingRecordQueryMap">
         SELECT TR.id TRid,
                TR.training_teacher,
                TR.training_content,
@@ -37,5 +37,43 @@
                  LEFT JOIN `training_record_participant` TRP ON TR.id = TRP.training_record
                  LEFT JOIN `staff_info` SI ON TRP.training_participant = SI.id
         WHERE TR.id = #{id}
+    </select>
+
+    <!-- 复杂查询培训记录，及那些培训记录下的所有参与人员 -->
+    <select id="trainingRecordComplexQuery" resultMap="trainingRecordQueryMap">
+        SELECT
+        TR.id TRid,
+        TR.training_teacher,
+        TR.training_content,
+        TR.training_date,
+        SI.NAME,
+        SI.sex,
+        SI.department,
+        SI.idcard_number
+        FROM
+        (
+        SELECT
+        TTR.id,
+        TTR.training_teacher,
+        TTR.training_content,
+        TTR.training_date
+        FROM
+        `training_record` TTR
+        <if test="keyword != null">
+            WHERE
+            TTR.${field} LIKE concat('%',#{keyword},'%')
+        </if>
+        ORDER BY
+        TTR.${field}
+        <if test="isAsc">
+            ASC
+        </if>
+        <if test="!isAsc">
+            DESC
+        </if>
+        LIMIT #{limit}
+        OFFSET #{offset}) TR
+        LEFT JOIN `training_record_participant` TRP ON TR.id = TRP.training_record
+        LEFT JOIN `staff_info` SI ON TRP.training_participant = SI.id
     </select>
 </mapper>

@@ -4,6 +4,9 @@ import com.heyunetwork.demo.entity.TrainingRecord;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.heyunetwork.demo.entity.vo.TrainingRecordVo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -15,5 +18,11 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface TrainingRecordMapper extends BaseMapper<TrainingRecord> {
-    TrainingRecordVo queryTrainingRecord(String id);
+    TrainingRecordVo trainingRecordQueryById(String id);
+
+    List<TrainingRecordVo> trainingRecordComplexQuery(@Param("field") String field,
+                                                      @Param("keyword") String keyword,
+                                                      @Param("isAsc") Boolean isAsc,
+                                                      @Param("limit") Long limit,
+                                                      @Param("offset") Long offset);
 }
