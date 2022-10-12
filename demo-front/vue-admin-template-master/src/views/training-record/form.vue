@@ -49,7 +49,7 @@
             ></Input>
           </FormItem>
 
-          <FormItem label="参与人员" >
+          <FormItem label="参与人员">
             <div>
               <Table
                 border
@@ -61,25 +61,23 @@
                 @on-select-all="addOrRemoveItems"
               ></Table>
 
-                <Page
-                  size="small"
-                  :total="this.total"
-                  :current="this.selectTableSearchParam.current"
-                  :page-size="this.selectTableSearchParam.size"
-                  @on-change="changePage"
-                >
-                </Page>
+              <Page
+                size="small"
+                :total="this.total"
+                :current="this.selectTableSearchParam.current"
+                :page-size="this.selectTableSearchParam.size"
+                @on-change="changePage"
+              >
+              </Page>
               <div>
                 <Table
-                border
-                size="small"
-                ref="selection"
-                :columns="displayTableColumns"
-                :data="list"
-              ></Table>
+                  border
+                  size="small"
+                  ref="selection"
+                  :columns="displayTableColumns"
+                  :data="list"
+                ></Table>
               </div>
-              
-              
             </div>
           </FormItem>
 
@@ -112,6 +110,7 @@
   
   <script>
 import staffApi from "@/api/staff";
+import { TransitionGroupStub } from "@vue/test-utils";
 import { mapState, mapGetters, mapMutations } from "vuex";
 
 export default {
@@ -130,19 +129,14 @@ export default {
         };
       }
     },
-    list() {
-      if (this.$store.state.trainingRecord.list) {
-        return this.$store.state.trainingRecord.list;
-      } else {
-        return []
-      }
-    },
+
   },
   data() {
     return {
-      total:0,
+      total: 0,
       teachers: [],
       selectTableData: [],
+      list: this.$store.state.trainingRecord.list,
       selectTableColumns: [
         {
           type: "selection",
@@ -270,19 +264,39 @@ export default {
     },
     changePage(page) {
       this.selectTableSearchParam.current = page;
-      this.getSelectTableData()
+      this.getSelectTableData();
     },
 
-    addOrRemoveItems(selection){ 
-      for (let item of selection) {
-        let index = this.list.indexOf(item)
-        if (index) {
-          this.list.splice(item);
+    addOrRemoveItems(selection) {
+      let idArray = selection.map((item) => {
+        return item.id;
+      });
+
+      let removeArray = this.selectTableData.filter((item) => {
+        if (!idArray.includes(item.id)) {
+          return item;
         }
-      }
-      this.saveList()
+      });
+
+      let removeArrayId = removeArray.map((item) => {
+        return item.id;
+      });
+
+      this.list = this.list.filter((item) => {
+        if (removeArrayId.includes(item.id)) {
+          return item;
+        }
+      });
+      this.list = this.list.filter((item) => {
+        if (idArray.includes(item.id)) {
+          return item;
+        }
+      });
+      this.list.push.apply(this.list, selection);
+      console.log(this.list);
+      this.$store.commit("trainingRecord/SET_LIST", this.list);
     },
-    
+
     query() {
       let data = { id: this.$route.params.id };
       staffApi.query(data).then((response) => {
@@ -344,13 +358,6 @@ export default {
       );
       this.saveState();
     },
-    saveList(){
-      console.log('22222222222222222222222222')
-
-      this.$store.commit("trainingRecord/SET_LIST", this.list);
-      console.log('1111111111111111111111111')
-      console.log(this.$store.state.trainingRecord.list)
-    }
   },
 };
 </script>
