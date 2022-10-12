@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.sun.xml.internal.fastinfoset.stax.events.Util.isEmptyString;
 
@@ -29,6 +30,7 @@ import static com.sun.xml.internal.fastinfoset.stax.events.Util.isEmptyString;
  * @since 2022-10-09
  */
 @RestController
+@CrossOrigin
 @RequestMapping("/demo/staff-info")
 public class StaffController {
 
@@ -41,7 +43,7 @@ public class StaffController {
 
     // region 《=== 查询 ===》
 
-    @ApiOperation(value = "根据 id 查询一条员工数据")
+    @ApiOperation(value = "根据 id 查询一条员工资料")
     @GetMapping
     public R query(@RequestParam("id") String id) {
 
@@ -52,26 +54,47 @@ public class StaffController {
         return R.ok().data("data", staffInfoVo);
     }
 
-    @ApiOperation(value = "员工复杂查询",
+    @ApiOperation(value = "查询所有员工名")
+    @GetMapping("/queryAllName")
+    public R queryAllName() {
+        QueryWrapper qw = new QueryWrapper<StaffInfo>();
+        qw.select("name");
+        List<String> data = staffService.list().stream().map(StaffInfo::getName).collect(Collectors.toList());
+        return R.ok().data("data", data);
+    }
+
+    @ApiOperation(value = "员工资料复杂查询",
             notes = "1.模糊查询；<br>"
                     + "2.分页查询，可以指定页码（current）、页长（field）；<br>"
-                    + "3.条件查询，查询条件（field）可以为姓名（name）、性别（sex）、部门（department）、学历（formal_schooling）；<br>"
-                    + "4.根据查询条件（field）正序或逆序排序")
+                    + "3.条件查询，查询条件（field）可以为姓名（name）、性别（sex）、部门（department）、学历（formal_schooling）、<br>"
+                    + "  创建时间（gmt_create）、更新时间（gmt_modified）<br>"
+                    + "4.根据排序条件（sortBy）正序或逆序排序")
     @GetMapping("staffComplexQuery")
-    public R staffComplexQuery(@RequestParam("current") long current, @RequestParam("size") long size, @RequestParam(value = "field") String field, @RequestParam(value = "keyword", required = false) String keyword, @RequestParam(value = "sortAsc", required = false, defaultValue = "true") Boolean sortAsc) {
+    public R staffComplexQuery(@RequestParam("current") long current,
+                               @RequestParam("size") long size,
+                               @RequestParam(value = "field") String field,
+                               @RequestParam(value = "keyword", required = false) String keyword,
+                               @RequestParam(value = "sortBy", required = false, defaultValue = "gmt_modified") String sortBy,
+                               @RequestParam(value = "sortAsc", required = false, defaultValue = "true") Boolean sortAsc) {
 
         // region <- 数据校验 ->
-        // 是否进行条件查询
+        // 1-1.是否进行条件查询
         if (isEmptyString(keyword)) {
             keyword = null;
+        }else {
+            // 1-2.校验 field 是否可用
+            if (!StaffConstant.staffQueryFields.contains(field)) {
+                throw new MyException(20001, "不符合规范的查询条件");
+            }
         }
-        // 校验 field 是否可用
-        if (!StaffConstant.staffQueryFields.contains(field)) {
-            throw new MyException(20001, "不符合规范的查询条件");
+
+        // 1-3.校验 sortBy 是否可用
+        if (!StaffConstant.staffSortFields.contains(sortBy)) {
+            throw new MyException(20001, "不符合规范的排序条件");
         }
         // endregion
 
-        Map<String, Object> map = staffService.staffComplexQuery(current, size, field, keyword, sortAsc);
+        Map<String, Object> map = staffService.staffComplexQuery(current, size, field, keyword, sortBy, sortAsc);
         return R.ok().data(map);
     }
 
@@ -85,6 +108,7 @@ public class StaffController {
 
         // region <- 数据校验 ->
         // 需要校验的字段
+        staffInfoVo.setId(null);
         String name = staffInfoVo.getName();
         String idcardNumber = staffInfoVo.getIdcardNumber();
         String email = staffInfoVo.getEmail();
@@ -130,32 +154,38 @@ public class StaffController {
     @PutMapping
     public R update(@RequestBody StaffInfoVo staffInfoVo) {
 
-        // region <- 数据校验 ->
-        // 需要校验的字段
+        // region <- 1.数据校验 ->
+        // 1-1.需要校验的字段
         String idcardNumber = staffInfoVo.getIdcardNumber();
         String email = staffInfoVo.getEmail();
 
-        // 新增时不能 VO 中不能有 id
-        staffInfoVo.setId(null);
+        // 1-2.修改时需要获取数据库中原数据进行校验
 
-        // 是否修改了邮箱
-        if (!isEmptyString(email)) {
-            // 邮箱格式校验
-            if (!MyVerifyUtil.emailVerify(email)) throw new MyException(20001, "邮箱格式错误");
+        if (isEmptyString(staffInfoVo.getId())) throw new MyException(20001,"数据校验失败，无 id");
+        StaffInfo st= staffService.getById(staffInfoVo.getId());
+
+        // 1-4.是否修改了邮箱
+        if (!isEmptyString(staffInfoVo.getEmail())){
+            if (!staffInfoVo.getEmail().equals(st.getEmail()) ) {
+                // 邮箱格式校验
+                if (!MyVerifyUtil.emailVerify(email)) throw new MyException(20001, "邮箱格式错误");
+            }
         }
 
-        // 是否修改了身份证号
-        if (!isEmptyString(idcardNumber)) {
-            // 格式校验
-            if (!MyVerifyUtil.idcardNumberVerify(idcardNumber)) throw new MyException(20001, "身份证号格式错误");
-            // 身份证号唯一性校验
-            QueryWrapper qw = new QueryWrapper<StaffInfo>();
-            qw.eq("idcard_number", idcardNumber);
-            if (staffService.count(qw) != 0) throw new MyException(20001, "身份证已被注册");
+        // 1-5.是否修改了身份证号
+        if (!isEmptyString(staffInfoVo.getIdcardNumber())) {
+            if (!staffInfoVo.getIdcardNumber().equals(st.getIdcardNumber()) ) {
+                // 格式校验
+                if (!MyVerifyUtil.idcardNumberVerify(idcardNumber)) throw new MyException(20001, "身份证号格式错误");
+                // 身份证号唯一性校验
+                QueryWrapper qw = new QueryWrapper<StaffInfo>();
+                qw.eq("idcard_number", idcardNumber);
+                if (staffService.count(qw) != 0) throw new MyException(20001, "身份证已被注册");
+            }
         }
         // endregion
 
-        // region <- 数据重新封装 ->
+        // region <- 2.数据重新封装 ->
         StaffInfo staffInfo = new StaffInfo();
         BeanUtils.copyProperties(staffInfoVo, staffInfo);
         // endregion

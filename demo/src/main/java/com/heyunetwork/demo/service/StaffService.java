@@ -17,7 +17,7 @@ public interface StaffService extends IService<StaffInfo> {
 
     // region 《=== 查询 ===》
 
-    Map<String, Object> staffComplexQuery(long current, long size, String field, String keyword, Boolean sortAsc);
+    Map<String, Object> staffComplexQuery(long current, long size, String field, String keyword,String sortBy, Boolean sortAsc);
 
     // endregion
 

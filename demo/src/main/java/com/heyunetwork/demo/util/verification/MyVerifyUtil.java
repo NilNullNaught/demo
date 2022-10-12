@@ -1,9 +1,15 @@
 package com.heyunetwork.demo.util.verification;
 
+import static com.sun.xml.internal.fastinfoset.stax.events.Util.isEmptyString;
+
 public class MyVerifyUtil {
 
     // 身份证号格式校验
     public static Boolean idcardNumberVerify(String IdcardNumber) {
+
+        if (isEmptyString(IdcardNumber)){
+            return false;
+        }
 
         // 定义判别用户身份证号的正则表达式（15位或者18位，最后一位可以为字母）
         String regularExpression = "(^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]$)|" +
@@ -49,6 +55,11 @@ public class MyVerifyUtil {
 
     // 邮箱格式校验
     public static Boolean emailVerify(String email) {
+
+        if (isEmptyString(email)){
+            return false;
+        }
+
         String format = "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-zA-Z0-9]+";
         if (email.matches(format)) {
             return true;// 邮箱名合法，返回true

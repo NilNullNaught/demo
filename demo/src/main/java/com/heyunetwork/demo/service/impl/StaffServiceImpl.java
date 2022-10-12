@@ -40,14 +40,14 @@ public class StaffServiceImpl extends ServiceImpl<StaffInfoMapper, StaffInfo> im
      * @return
      */
     @Override
-    public Map<String, Object> staffComplexQuery(long current, long size, String field, String keyword, Boolean sortAsc) {
+    public Map<String, Object> staffComplexQuery(long current, long size, String field, String keyword,String sortBy, Boolean sortAsc) {
 
         // region <- 1.封装查询条件 ->
         QueryWrapper qw = new QueryWrapper<StaffInfo>();
         if (sortAsc)
-            qw.orderByAsc(field);
+            qw.orderByAsc(sortBy);
         else
-            qw.orderByDesc(field);
+            qw.orderByDesc(sortBy);
         if (keyword != null) {
             qw.like(field, keyword);
         }

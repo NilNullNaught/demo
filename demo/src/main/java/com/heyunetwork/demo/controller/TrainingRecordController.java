@@ -25,6 +25,7 @@ import static com.sun.xml.internal.fastinfoset.stax.events.Util.isEmptyString;
  * @since 2022-10-09
  */
 @RestController
+@CrossOrigin
 @RequestMapping("/demo/training-record")
 public class TrainingRecordController {
 
