@@ -19,6 +19,8 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.sun.xml.internal.fastinfoset.stax.events.Util.isEmptyString;
+
 /**
  * <p>
  * 培训记录表 服务实现类
@@ -62,15 +64,17 @@ public class TrainingRecordServiceImpl extends ServiceImpl<TrainingRecordMapper,
      * @return
      */
     @Override
-    public Map<String, Object> trainingRecordComplexQuery(long current, long size, String field, String keyword, Boolean isAsc) {
+    public Map<String, Object> trainingRecordComplexQuery(long current, long size, String field, String keyword,String sortBy, Boolean isAsc) {
 
         // 1.执行复杂查询
-        List<TrainingRecordVo> result = baseMapper.trainingRecordComplexQuery(field, keyword, isAsc, size, size * (current - 1));
+        List<TrainingRecordVo> result = baseMapper.trainingRecordComplexQuery(field, keyword, sortBy, isAsc, size, size * (current - 1));
 
-        // region <- 获取符合查询条件的记录数 ->
+        // region <- 2.获取符合查询条件的记录数 ->
         // endregion
         QueryWrapper qw = new QueryWrapper<TrainingRecord>();
-        qw.like(field, keyword);
+        if (!isEmptyString(keyword)){
+            qw.like(field, keyword);
+        }
         Long total = baseMapper.selectCount(qw);
 
         // region <- 3.封装查询结果并返回 ->

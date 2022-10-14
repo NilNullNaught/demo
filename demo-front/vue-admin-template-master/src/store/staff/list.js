@@ -1,6 +1,6 @@
 const getDefaultState = () => {
     return {
-        tableColumnWidth: ['180','180','180','180','180','180','150']
+        columnAttribute: []
     }
 }
 
@@ -8,20 +8,20 @@ const state = getDefaultState()
 
 
 const mutations = {
-    SET_TABLECOLUMNWIDTH(state, tableColumnWidth) {
-        state.tableColumnWidth = tableColumnWidth
+    SET_COLUMNATTRIBUTE(state, columnAttribute) {
+        state.columnAttribute = columnAttribute
     },
-    RESET_TABLECOLUMNWIDTH(state) {
-        state.tableColumnWidth = getDefaultState()
+    RESET_COLUMNATTRIBUTE(state) {
+        state.columnAttribute = getDefaultState()
     },
 }
 
 const actions = {
-    SET_TABLECOLUMNWIDTH(context, tableColumnWidth) {
-        context.commit('SET_TABLECOLUMNWIDTH', tableColumnWidth)
+    SET_COLUMNATTRIBUTE(context, columnAttribute) {
+        context.commit('SET_COLUMNATTRIBUTE', columnAttribute)
     },
-    RESET_TABLECOLUMNWIDTH({ commit }) {
-        commit('RESET_TABLECOLUMNWIDTH')
+    RESET_COLUMNATTRIBUTE({ commit }) {
+        commit('RESET_COLUMNATTRIBUTE')
     }
 }
 

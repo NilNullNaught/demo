@@ -55,6 +55,17 @@ export const constantRoutes = [
     }]
   },
   {
+    path: '/test',
+    component: Layout,
+    redirect: '/test',
+    children: [{
+      path: 'test',
+      name: 'Test',
+      component: () => import('@/views/test/test'),
+      meta: { title: '测试'}
+    }]
+  },
+  {
     path: '/staff',
     component: Layout,
     redirect: '/staff/list',
@@ -107,7 +118,15 @@ export const constantRoutes = [
         component: () => import('@/views/training-record/form'),
         meta: { title: '修改培训记录',noCache: true },
         hidden: true
+      },
+      {
+        path: 'show/:id',
+        name: 'TrainingRecordShow',
+        component: () => import('@/views/training-record/show'),
+        meta: { title: '培训记录详情',noCache: true },
+        hidden: true
       }
+      
     ]
   },
 

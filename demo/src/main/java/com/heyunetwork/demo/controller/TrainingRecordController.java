@@ -29,14 +29,14 @@ import static com.sun.xml.internal.fastinfoset.stax.events.Util.isEmptyString;
 @RequestMapping("/demo/training-record")
 public class TrainingRecordController {
 
-    // region 《=== service ===》
+    // region 《================ service ================》
 
     @Autowired
     private TrainingRecordService trainingRecordService;
 
     // endregion
 
-    // region 《=== 查询 ===》
+    // region 《================ 查询 ================》
 
     @ApiOperation("根据 ID 查询单条培训记录及其参与人员")
     @GetMapping
@@ -55,26 +55,34 @@ public class TrainingRecordController {
                                         @RequestParam("size") long size,
                                         @RequestParam(value = "field", required = false) String field,
                                         @RequestParam(value = "keyword", required = false) String keyword,
+                                        @RequestParam(value = "sortBy", required = false, defaultValue = "gmt_modified") String sortBy,
                                         @RequestParam(value = "sortAsc", required = false, defaultValue = "true") Boolean isAsc) {
 
-        // region <- 数据校验 ->
-        // 是否进行条件查询
+
+        // region <- 1.数据校验 ->
+        // 1-1.是否进行条件查询
         if (isEmptyString(keyword)) {
             keyword = null;
         }
-        // 校验 field 是否可用
+
+        // 1-2.校验 field 是否可用
         if (!StaffConstant.trainingRecordFields.contains(field)) {
             throw new MyException(20001, "不符合规范的查询条件");
         }
+
+        // 1-3.校验 sortBy 是否可用
+        if (!StaffConstant.trainingRecordSortFields.contains(sortBy)) {
+            throw new MyException(20001, "不符合规范的排序条件");
+        }
         // endregion
 
-        Map<String, Object> map = trainingRecordService.trainingRecordComplexQuery(current, size, field, keyword, isAsc);
+        Map<String, Object> map = trainingRecordService.trainingRecordComplexQuery(current, size, field, keyword, sortBy, isAsc);
         return R.ok().data(map);
     }
 
     // endregion
 
-    // region 《=== 新增 ===》
+    // region 《================ 新增 ================》
 
     @ApiOperation(value = "新增一条培训记录", notes = "1.所有数据都不能为空。")
     @PostMapping
@@ -97,7 +105,7 @@ public class TrainingRecordController {
 
     // endregion
 
-    // region 《=== 修改 ===》
+    // region 《================ 修改 ================》
 
     @ApiOperation(value = "修改培训记录及参与人员")
     @PutMapping
@@ -108,7 +116,7 @@ public class TrainingRecordController {
 
     // endregion
 
-    // region 《=== 删除 ===》
+    // region 《================ 删除 ================》
 
     @ApiOperation(value = "删除一条培训记录及所有参与人员")
     @DeleteMapping
@@ -121,7 +129,7 @@ public class TrainingRecordController {
 
     // endregion
 
-    // region 《=== 其他 ===》
+    // region 《================ 其他 ================》
     // endregion
 
 }

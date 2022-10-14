@@ -6,7 +6,8 @@ import settings from './modules/settings'
 import user from './modules/user'
 import staffForm from './staff/form'
 import staffList from './staff/list'
-import trainingRecord from './trainingRecord/form'
+import trainingRecordForm from './trainingRecord/form'
+import trainingRecordList from './trainingRecord/list'
 
 // 持久化插件
 import createPersistedState from 'vuex-persistedstate'
@@ -14,7 +15,7 @@ Vue.use(Vuex)
 
 const dataState = createPersistedState({
   key: 'demo-loaldata',
-  paths: ['staffForm','staffList','trainingRecord']
+  paths: ['staffForm','staffList','trainingRecordForm','trainingRecordList']
 })
 
 const store = new Vuex.Store({
@@ -24,7 +25,8 @@ const store = new Vuex.Store({
     user,
     staffForm,
     staffList,
-    trainingRecord
+    trainingRecordForm,
+    trainingRecordList
   },
   plugins: [
     dataState

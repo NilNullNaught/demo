@@ -5,7 +5,6 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
-
 // 引入 ViewUI
 import ViewUI from 'view-design';
 import 'view-design/dist/styles/iview.css';
@@ -55,3 +54,5 @@ new Vue({
   store,
   render: h => h(App)
 })
+
+

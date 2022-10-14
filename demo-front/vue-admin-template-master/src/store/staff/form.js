@@ -19,7 +19,7 @@ const mutations = {
     state.formValidate = formValidate
   },
   RESET_FORMVALIDATE(state) {
-    state.formValidate = getDefaultState()
+    Object.assign(state, getDefaultState())
   },
 }
 

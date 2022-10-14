@@ -64,7 +64,7 @@
             TTR.${field} LIKE concat('%',#{keyword},'%')
         </if>
         ORDER BY
-        TTR.${field}
+        TTR.${sortBy}
         <if test="isAsc">
             ASC
         </if>

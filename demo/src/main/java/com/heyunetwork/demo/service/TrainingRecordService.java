@@ -20,7 +20,7 @@ public interface TrainingRecordService extends IService<TrainingRecord> {
 
     TrainingRecordVo trainingRecordQueryById(String id);
 
-    Map<String, Object> trainingRecordComplexQuery(long current, long size, String field, String keyword, Boolean isAsc);
+    Map<String, Object> trainingRecordComplexQuery(long current, long size, String field, String keyword,String sortBy, Boolean isAsc);
 
     // endregion
 

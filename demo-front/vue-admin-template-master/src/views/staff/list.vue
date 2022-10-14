@@ -19,11 +19,14 @@
 
     <!-- 表格主体 -->
     <Table
+      ref="mainTable"
       border
+      :key="tableUpdateKey"
       stripe
       v-bind:data="tableData"
       :columns="tableColumns"
       row-key="id"
+      @on-sort-change="reSortTableData"
       @on-column-width-resize="saveTableState"
     >
       <template slot-scope="{ row }" slot="action">
@@ -56,9 +59,8 @@
 </template>
   
  <script>
-import { mapGetters } from "vuex";
 import staffApi from "@/api/staff";
-import Sortable from 'sortablejs'
+import Sortable from "sortablejs";
 
 export default {
   name: "StaffList",
@@ -73,6 +75,7 @@ export default {
         sortBy: "gmt_modified", // 排序条件
         sortAsc: false, // 正序排序
       },
+      tableUpdateKey: 0, // 数据表表头调整后刷新
       tableData: [], // 表格数据
       tableColumns: [
         {
@@ -102,7 +105,7 @@ export default {
         {
           title: "部门",
           key: "department",
-          sortable: true,
+          sortable: "custom",
           resizable: true,
           width: 180,
           render: (h, params) => {
@@ -120,7 +123,7 @@ export default {
         },
         {
           title: "学历",
-          sortable: true,
+          sortable: "custom",
           resizable: true,
           width: 180,
           key: "formalSchooling",
@@ -158,23 +161,39 @@ export default {
     this.getTableData();
   },
   mounted() {
-    let width = this.$store.state.staffList.tableColumnWidth;
-    if (width.length !== 0) {
-      let i = 0;
-      this.tableColumns.forEach((element) => {
-        element.width = width[i];
-        i++;
-      });
-    }
+    this.getTableState();
+    this.columnDrop();
+    console.log(this.tableColumns);
   },
   methods: {
-    getTableData(page = 1) {
+    getTableData() {
       staffApi.staffComplexQuery(this.searchParam).then((response) => {
         // debugger 设置断点调试
         if (response.success === true) {
           this.tableData = response.data.items;
           this.total = response.data.total;
         }
+      });
+    },
+    //列拖拽
+    columnDrop() {
+      const wrapperTr =
+        this.$refs.mainTable.$refs.header.firstChild.children[1].children[0];
+
+      this.sortable = Sortable.create(wrapperTr, {
+        animation: 180,
+        delay: 0,
+        onEnd: (evt) => {
+          const oldItem = this.tableColumns[evt.oldIndex];
+          this.tableColumns.splice(evt.oldIndex, 1);
+          this.tableColumns.splice(evt.newIndex, 0, oldItem);
+          this.tableUpdateKey += 1;
+
+          this.saveTableState();
+          this.$nextTick(function () {
+            this.columnDrop();
+          });
+        },
       });
     },
     changePage(page) {
@@ -189,6 +208,23 @@ export default {
       this.searchParam.keyword = keyword;
       this.getTableData();
     },
+    reSortTableData(column) {
+      switch (column.key) {
+        case "name":
+          this.searchParam.sortBy = "name";
+          break;
+        case "department":
+          this.searchParam.sortBy = "department";
+          break;
+        case "formalSchooling":
+          this.searchParam.sortBy = "formal_schooling";
+          break;
+        default:
+          this.searchParam.sortBy = "gmt_modified";
+      }
+      this.searchParam.sortAsc = column.order == "asc";
+      this.getTableData();
+    },
     edit(row) {
       this.$router.push({ name: "StaffEdit", params: { id: row.id } });
     },
@@ -201,10 +237,28 @@ export default {
       });
     },
     saveTableState() {
-      let columnWidthArray = this.tableColumns.map((obj) => {
-        return obj.width;
+      let columnAttribute = this.tableColumns.map((obj, index) => {
+        let t = {};
+        t.situation = index;
+        t.key = obj.key;
+        t.width = obj.width;
+        return t;
       });
-      this.$store.commit("staffList/SET_TABLECOLUMNWIDTH", columnWidthArray);
+      this.$store.commit("staffList/SET_COLUMNATTRIBUTE", columnAttribute);
+    },
+    getTableState() {
+      let columnAttribute = this.$store.state.staffList.columnAttribute;
+      if (columnAttribute.length !== 0) {
+        let newTableColumns = [];
+
+        this.tableColumns.forEach((item) => {
+          const t = columnAttribute.find((i) => i.key === item.key);
+          item.width = t.width;
+          newTableColumns[t.situation] = item;
+        });
+
+        this.tableColumns = newTableColumns;
+      }
     },
   },
 };

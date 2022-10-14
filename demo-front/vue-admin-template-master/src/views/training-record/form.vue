@@ -1,8 +1,8 @@
 <template>
   <div class="staff-container">
     <Row class="staff-searchBar">
-      <Col span="6"></Col>
-      <Col span="12">
+      <Col span="5"></Col>
+      <Col span="14">
         <div v-if="this.$route.params.id">
           <div class="staff-title">修改培训记录</div>
         </div>
@@ -13,6 +13,7 @@
           ref="formValidate"
           :model="formValidate"
           :label-width="80"
+          :rules="ruleValidate"
           @on-validate="saveState"
         >
           <FormItem label="培训老师" prop="trainingTeacher">
@@ -34,15 +35,14 @@
             <DatePicker
               @on-change="saveStateS"
               v-model="formValidate.trainingDate"
-              type="date"
               placeholder="请选择培训日期"
             ></DatePicker>
           </FormItem>
 
-          <FormItem label="培训内容" prop="trainContent">
+          <FormItem label="培训内容" prop="trainingContent">
             <Input
               @on-change="saveState"
-              v-model="formValidate.trainContent"
+              v-model="formValidate.trainingContent"
               type="textarea"
               :autosize="{ minRows: 2, maxRows: 8 }"
               placeholder="请输入培训内容"
@@ -69,27 +69,14 @@
                 @on-change="changePage"
               >
               </Page>
-              <div>
-                <Table
-                  border
-                  size="small"
-                  ref="selection"
-                  :columns="displayTableColumns"
-                  :data="list"
-                ></Table>
-              </div>
             </div>
+            <Table
+              border
+              size="small"
+              :columns="displayTableColumns"
+              :data="formValidate.list"
+            ></Table>
           </FormItem>
-
-          <!-- <div>
-
-              <Table
-                border
-                ref="selection2"
-                :columns="columns3"
-                :data="data2"
-              ></Table>
-            </div> -->
 
           <FormItem>
             <Button type="primary" @click="handleSubmit('formValidate')"
@@ -103,40 +90,54 @@
           </FormItem>
         </Form>
       </Col>
-      <Col span="6"></Col>
+      <Col span="5"></Col>
     </Row>
   </div>
 </template>
   
   <script>
 import staffApi from "@/api/staff";
-import { TransitionGroupStub } from "@vue/test-utils";
-import { mapState, mapGetters, mapMutations } from "vuex";
+import trainingRecordApi from "@/api/training-record";
+
+import Sortable from "sortablejs";
 
 export default {
-  name: "StaffForm",
+  name: "TrainingRecordForm",
   //第一种
   computed: {
     formValidate() {
-      if (this.$store.state.trainingRecord.formValidate) {
-        return this.$store.state.trainingRecord.formValidate;
-      } else {
-        return {
-          trainingTeacher: "",
-          trainingDate: new Date(),
-          trainContent: "",
-          list: [],
-        };
-      }
+      return this.$store.state.trainingRecordForm.formValidate;
     },
-
   },
   data() {
     return {
       total: 0,
       teachers: [],
       selectTableData: [],
-      list: this.$store.state.trainingRecord.list,
+      ruleValidate: {
+        trainingTeacher: [
+          {
+            required: true,
+            message: "请选择培训老师",
+            trigger: "blur",
+          },
+        ],
+        trainingDate: [
+          {
+            required: true,
+            message: "请选择培训日期",
+            trigger: "change",
+            pattern: /.+/,
+          },
+        ],
+        trainingContent: [
+          {
+            required: true,
+            message: "请填写培训内容",
+            trigger: "blur",
+          },
+        ],
+      },
       selectTableColumns: [
         {
           type: "selection",
@@ -180,6 +181,11 @@ export default {
         },
       ],
       displayTableColumns: [
+        {
+          type: "index",
+          width: 55,
+          align: "center",
+        },
         {
           title: "姓名",
           key: "name",
@@ -227,8 +233,7 @@ export default {
     };
   },
   created() {
-    let id = this.$store.state.trainingRecord.formValidate.id;
-
+    let id = this.$store.state.trainingRecordForm.formValidate.id;
     if (this.$route.params.id) {
       // 修改培训记录
       if (this.$route.params.id != id) {
@@ -239,9 +244,10 @@ export default {
       // 新增培训记录
       if (id != "0") {
         // 之前进行过未完成的修改，需要清除
-        this.$store.commit("trainingRecord/RESET_FORMVALIDATE");
+        this.$store.commit("trainingRecordForm/RESET_FORMVALIDATE");
       }
     }
+
     this.queryAllName();
     this.getSelectTableData();
   },
@@ -250,9 +256,9 @@ export default {
       this.$refs[formValidate].validate((valid) => {
         if (valid) {
           if (this.$route.params.id) {
-            this.edit();
+            this.edit(this.formValidate);
           } else {
-            this.add();
+            this.add(this.formValidate);
           }
         } else {
           this.$Message.error("请按照格式填写数据");
@@ -282,28 +288,27 @@ export default {
         return item.id;
       });
 
-      this.list = this.list.filter((item) => {
-        if (removeArrayId.includes(item.id)) {
+      this.formValidate.list = this.formValidate.list.filter((item) => {
+        if (!removeArrayId.includes(item.id)) {
           return item;
         }
       });
-      this.list = this.list.filter((item) => {
-        if (idArray.includes(item.id)) {
+      this.formValidate.list = this.formValidate.list.filter((item) => {
+        if (!idArray.includes(item.id)) {
           return item;
         }
       });
-      this.list.push.apply(this.list, selection);
-      console.log(this.list);
-      this.$store.commit("trainingRecord/SET_LIST", this.list);
+      this.formValidate.list.push.apply(this.formValidate.list, selection);
+      this.saveState();
     },
 
     query() {
-      let data = { id: this.$route.params.id };
-      staffApi.query(data).then((response) => {
+      let formdata = { id: this.$route.params.id };
+      trainingRecordApi.query(formdata).then((response) => {
         // debugger 设置断点调试
         if (response.success === true) {
           this.$store.dispatch(
-            "staffForm/SET_FORMVALIDATE",
+            "trainingRecordForm/SET_FORMVALIDATE",
             response.data.data
           );
         }
@@ -325,38 +330,55 @@ export default {
           if (response.success === true) {
             this.selectTableData = response.data.items;
             this.total = response.data.total;
+
+            // 修改 selectTable 的选中状态
+            this.selectStatus();
           }
         });
     },
-    add() {
-      // staffApi.add(this.formValidate).then((response) => {
-      //   // debugger 设置断点调试
-      //   if (response.success === true) {
-      //     this.$Message.success("新增成功");
-      //     this.$store.dispatch("staffForm/RESET_FORMVALIDATE");
-      //     this.$router.push("/staff/list");
-      //   }
-      // });
+    add(formData) {
+      trainingRecordApi.add(formData).then((response) => {
+        // debugger 设置断点调试
+        if (response.success === true) {
+          this.$Message.success("新增成功");
+          this.$store.dispatch("trainingRecordForm/RESET_FORMVALIDATE");
+          this.$router.push("/training-record/list");
+        }
+      });
     },
-    edit() {
-      // this.formValidate.id = this.$route.params.id;
-      // staffApi.edit(this.formValidate).then((response) => {
-      //   // debugger 设置断点调试
-      //   if (response.success === true) {
-      //     this.$Message.success("修改成功");
-      //     this.$store.dispatch("staffForm/RESET_FORMVALIDATE");
-      //     this.$router.push("/staff/list");
-      //   }
-      // });
+    edit(formData) {
+      trainingRecordApi.edit(formData).then((response) => {
+        // debugger 设置断点调试
+        if (response.success === true) {
+          this.$Message.success("修改成功");
+          this.$store.dispatch("trainingRecordForm/RESET_FORMVALIDATE");
+          this.$router.push("/training-record/list");
+        }
+      });
     },
     saveState() {
-      this.$store.commit("trainingRecord/SET_FORMVALIDATE", this.formValidate);
+      this.$store.dispatch(
+        "trainingRecordForm/SET_FORMVALIDATE",
+        this.formValidate
+      );
     },
     saveStateS() {
       this.formValidate.trainingDate = new Date(
         this.formValidate.trainingDate.getTime() + 8 * 60 * 60 * 1000
       );
       this.saveState();
+    },
+    selectStatus() {
+      let idArray = this.formValidate.list.map((item) => {
+        return item.id;
+      });
+
+      // 判断当前数据是否有选中的数据,已被选择的设置_checked为true
+      this.selectTableData.forEach((item) => {
+        if (idArray.includes(item.id)) {
+          item._checked = true;
+        }
+      });
     },
   },
 };

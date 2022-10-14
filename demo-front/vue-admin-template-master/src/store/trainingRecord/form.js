@@ -4,9 +4,9 @@ const getDefaultState = () => {
             id: '0',
             trainingTeacher: '',
             trainingDate: new Date(),
-            trainContent: '',
-        },
-        list: []
+            trainingContent: '',
+            list:[]
+        }
     }
 }
 
@@ -17,13 +17,7 @@ const mutations = {
         state.formValidate = formValidate
     },
     RESET_FORMVALIDATE(state) {
-        state.formValidate = getDefaultState()
-    },
-    SET_LIST(state, list) {
-        state.list = list
-    },
-    RESET_LIST(list) {
-        state.list = getDefaultState()
+        Object.assign(state, getDefaultState())
     },
 }
 
@@ -33,12 +27,6 @@ const actions = {
     },
     RESET_FORMVALIDATE({ commit }) {
         commit('RESET_FORMVALIDATE')
-    },
-    SET_LIST(context, list) {
-        context.commit('SET_LIST', list)
-    },
-    RESET_LIST({ commit }) {
-        commit('RESET_LIST')
     },
 }
 

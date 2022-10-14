@@ -22,6 +22,7 @@ public interface TrainingRecordMapper extends BaseMapper<TrainingRecord> {
 
     List<TrainingRecordVo> trainingRecordComplexQuery(@Param("field") String field,
                                                       @Param("keyword") String keyword,
+                                                      @Param("sortBy")String sortBy,
                                                       @Param("isAsc") Boolean isAsc,
                                                       @Param("limit") Long limit,
                                                       @Param("offset") Long offset);
