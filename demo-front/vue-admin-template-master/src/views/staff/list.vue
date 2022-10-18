@@ -35,7 +35,8 @@
           size="small"
           style="margin-right: 5px"
           @click="edit(row)"
-          >修改</Button
+        >修改
+        </Button
         >
         <Button type="error" size="small" @click="remove(row)">删除</Button>
       </template>
@@ -57,221 +58,221 @@
     </div>
   </div>
 </template>
-  
- <script>
-import staffApi from "@/api/staff";
-import Sortable from "sortablejs";
+
+<script>
+import staffApi from '@/api/staff'
+import Sortable from 'sortablejs'
 
 export default {
-  name: "StaffList",
+  name: 'StaffList',
   data() {
     return {
       total: 0, // 总记录数
       searchParam: {
-        keyword: "", // 查询关键字
+        keyword: '', // 查询关键字
         current: 1, // 页码
         size: 10, // 每页记录数
-        field: "name", // 查询条件
-        sortBy: "gmt_modified", // 排序条件
-        sortAsc: false, // 正序排序
+        field: 'name', // 查询条件
+        sortBy: 'gmt_modified', // 排序条件
+        sortAsc: false // 正序排序
       },
       tableUpdateKey: 0, // 数据表表头调整后刷新
       tableData: [], // 表格数据
       tableColumns: [
         {
-          title: "姓名",
-          key: "name",
-          sortable: true,
+          title: '姓名',
+          key: 'name',
+          sortable: 'custom',
           resizable: true,
-          width: 180,
+          width: 180
         },
         {
-          title: "性别",
-          key: "sex",
+          title: '性别',
+          key: 'sex',
           resizable: true,
           width: 180,
           render: (h, params) => {
-            const row = params.row;
-            const text = row.sex === 1 ? "男" : row.sex === 2 ? "女" : "未设置";
-            return h("Tag", {}, text);
-          },
+            const row = params.row
+            const text = row.sex === 1 ? '男' : row.sex === 2 ? '女' : '未设置'
+            return h('Tag', {}, text)
+          }
         },
         {
-          title: "身份证号码",
-          key: "idcardNumber",
+          title: '身份证号码',
+          key: 'idcardNumber',
           resizable: true,
-          width: 180,
+          width: 180
         },
         {
-          title: "部门",
-          key: "department",
-          sortable: "custom",
+          title: '部门',
+          key: 'department',
+          sortable: 'custom',
           resizable: true,
           width: 180,
           render: (h, params) => {
-            const row = params.row;
+            const row = params.row
             const text =
               row.department === 1
-                ? "业务部"
+                ? '业务部'
                 : row.department === 2
-                ? "采购部"
-                : row.stadepartmenttus === 3
-                ? "行政部"
-                : "未设置";
-            return h("Tag", {}, text);
-          },
+                  ? '采购部'
+                  : row.stadepartmenttus === 3
+                    ? '行政部'
+                    : '未设置'
+            return h('Tag', {}, text)
+          }
         },
         {
-          title: "学历",
-          sortable: "custom",
+          title: '学历',
+          sortable: 'custom',
           resizable: true,
           width: 180,
-          key: "formalSchooling",
+          key: 'formalSchooling',
           render: (h, params) => {
-            const row = params.row;
+            const row = params.row
             const text =
               row.formalSchooling === 1
-                ? "初中"
+                ? '初中'
                 : row.formalSchooling === 2
-                ? "高中"
-                : row.formalSchooling === 3
-                ? "大专"
-                : "本科";
-            return h("Tag", {}, text);
-          },
+                  ? '高中'
+                  : row.formalSchooling === 3
+                    ? '大专'
+                    : '本科'
+            return h('Tag', {}, text)
+          }
         },
         {
-          title: "邮箱",
-          key: "email",
+          title: '邮箱',
+          key: 'email',
           resizable: true,
-          width: 180,
+          width: 180
         },
         {
-          title: "操作",
-          slot: "action",
+          title: '操作',
+          slot: 'action',
           resizable: true,
           width: 150,
-          align: "center",
-        },
-      ],
-    };
+          align: 'center'
+        }
+      ]
+    }
   },
   created() {
     // 当页面加载时获取数据
-    this.getTableData();
+    this.getTableData()
   },
   mounted() {
-    this.getTableState();
-    this.columnDrop();
-    console.log(this.tableColumns);
+    this.getTableState()
+    this.columnDrop()
+    console.log(this.tableColumns)
   },
   methods: {
     getTableData() {
       staffApi.staffComplexQuery(this.searchParam).then((response) => {
         // debugger 设置断点调试
         if (response.success === true) {
-          this.tableData = response.data.items;
-          this.total = response.data.total;
+          this.tableData = response.data.items
+          this.total = response.data.total
         }
-      });
+      })
     },
-    //列拖拽
+    // 列拖拽
     columnDrop() {
       const wrapperTr =
-        this.$refs.mainTable.$refs.header.firstChild.children[1].children[0];
+        this.$refs.mainTable.$refs.header.firstChild.children[1].children[0]
 
       this.sortable = Sortable.create(wrapperTr, {
         animation: 180,
         delay: 0,
         onEnd: (evt) => {
-          const oldItem = this.tableColumns[evt.oldIndex];
-          this.tableColumns.splice(evt.oldIndex, 1);
-          this.tableColumns.splice(evt.newIndex, 0, oldItem);
-          this.tableUpdateKey += 1;
+          const oldItem = this.tableColumns[evt.oldIndex]
+          this.tableColumns.splice(evt.oldIndex, 1)
+          this.tableColumns.splice(evt.newIndex, 0, oldItem)
+          this.tableUpdateKey += 1
 
-          this.saveTableState();
-          this.$nextTick(function () {
-            this.columnDrop();
-          });
-        },
-      });
+          this.saveTableState()
+          this.$nextTick(function() {
+            this.columnDrop()
+          })
+        }
+      })
     },
     changePage(page) {
-      this.searchParam.current = page;
-      this.getTableData();
+      this.searchParam.current = page
+      this.getTableData()
     },
     clearKeyword() {
-      this.searchParam.keyword = "";
-      this.getTableData();
+      this.searchParam.keyword = ''
+      this.getTableData()
     },
     search(keyword) {
-      this.searchParam.keyword = keyword;
-      this.getTableData();
+      this.searchParam.keyword = keyword
+      this.getTableData()
     },
     reSortTableData(column) {
       switch (column.key) {
-        case "name":
-          this.searchParam.sortBy = "name";
-          break;
-        case "department":
-          this.searchParam.sortBy = "department";
-          break;
-        case "formalSchooling":
-          this.searchParam.sortBy = "formal_schooling";
-          break;
+        case 'name':
+          this.searchParam.sortBy = 'name'
+          break
+        case 'department':
+          this.searchParam.sortBy = 'department'
+          break
+        case 'formalSchooling':
+          this.searchParam.sortBy = 'formal_schooling'
+          break
         default:
-          this.searchParam.sortBy = "gmt_modified";
+          this.searchParam.sortBy = 'gmt_modified'
       }
-      this.searchParam.sortAsc = column.order == "asc";
-      this.getTableData();
+      this.searchParam.sortAsc = column.order == 'asc'
+      this.getTableData()
     },
     edit(row) {
-      this.$router.push({ name: "StaffEdit", params: { id: row.id } });
+      this.$router.push({ name: 'StaffEdit', params: { id: row.id } })
     },
     remove(row) {
-      let dataform = { id: row.id };
+      let dataform = { id: row.id }
       staffApi.delete(dataform).then((response) => {
         if (response.success === true) {
-          this.getTableData();
+          this.getTableData()
         }
-      });
+      })
     },
     saveTableState() {
       let columnAttribute = this.tableColumns.map((obj, index) => {
-        let t = {};
-        t.situation = index;
-        t.key = obj.key;
-        t.width = obj.width;
-        return t;
-      });
-      this.$store.commit("staffList/SET_COLUMNATTRIBUTE", columnAttribute);
+        let t = {}
+        t.situation = index
+        t.key = obj.key
+        t.width = obj.width
+        return t
+      })
+      this.$store.commit('staffList/SET_COLUMNATTRIBUTE', columnAttribute)
     },
     getTableState() {
-      let columnAttribute = this.$store.state.staffList.columnAttribute;
+      let columnAttribute = this.$store.state.staffList.columnAttribute
       if (columnAttribute.length !== 0) {
-        let newTableColumns = [];
+        let newTableColumns = []
 
         this.tableColumns.forEach((item) => {
-          const t = columnAttribute.find((i) => i.key === item.key);
-          item.width = t.width;
-          newTableColumns[t.situation] = item;
-        });
+          const t = columnAttribute.find((i) => i.key === item.key)
+          item.width = t.width
+          newTableColumns[t.situation] = item
+        })
 
-        this.tableColumns = newTableColumns;
+        this.tableColumns = newTableColumns
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
-  
-  <style lang="scss" scoped>
+
+<style lang="scss" scoped>
 .staff {
   &-container {
     margin: 10px;
   }
+
   &-searchBar {
     margin-bottom: 5px;
   }
 }
 </style>
-  

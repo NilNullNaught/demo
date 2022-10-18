@@ -59,10 +59,10 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/test',
     children: [{
-      path: 'test',
-      name: 'Test',
-      component: () => import('@/views/test/test'),
-      meta: { title: '测试'}
+      path: 'dic',
+      name: 'DicTest',
+      component: () => import('@/views/test/dictest/dic-test'),
+      meta: { title: '测试' }
     }]
   },
   {
@@ -88,7 +88,7 @@ export const constantRoutes = [
         path: 'edit/:id',
         name: 'StaffEdit',
         component: () => import('@/views/staff/form'),
-        meta: { title: '修改员工资料',noCache: true },
+        meta: { title: '修改员工资料', noCache: true },
         hidden: true
       }
     ]
@@ -116,17 +116,17 @@ export const constantRoutes = [
         path: 'edit/:id',
         name: 'TrainingRecordEdit',
         component: () => import('@/views/training-record/form'),
-        meta: { title: '修改培训记录',noCache: true },
+        meta: { title: '修改培训记录', noCache: true },
         hidden: true
       },
       {
         path: 'show/:id',
         name: 'TrainingRecordShow',
         component: () => import('@/views/training-record/show'),
-        meta: { title: '培训记录详情',noCache: true },
+        meta: { title: '培训记录详情', noCache: true },
         hidden: true
       }
-      
+
     ]
   },
 

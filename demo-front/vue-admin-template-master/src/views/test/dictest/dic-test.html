@@ -1,0 +1,66 @@
+<div class="staff-container">
+  <Row class="staff-searchBar">
+    <Col span="8"></Col>
+    <Col span="8"></Col>
+    <Col span="8">
+      <!-- 搜索 -->
+      <Input
+        v-model="searchParam.keyword"
+        clearable
+        search
+        @on-search="getTableData"
+        @on-clear="clearKeyword"
+      >
+        <span slot="prepend">根据培训老师查询</span>
+      </Input>
+    </Col>
+  </Row>
+
+  <!-- 表格主体 -->
+  <Table
+    border
+    stripe
+    ref="mainTable"
+    :key="tableUpdateKey"
+    v-bind:data="tableData"
+    :columns="tableColumns"
+    row-key="id"
+    @on-sort-change="reSortTableData"
+    @on-column-width-resize="saveTableState"
+  >
+    <template slot-scope="{ row }" slot="action">
+      <Button
+        type="success"
+        size="small"
+        style="margin-right: 5px"
+        @click="edit(row)"
+      >修改
+      </Button
+      >
+      <Button
+        type="success"
+        size="small"
+        style="margin-right: 5px"
+        @click="show(row)"
+      >详情
+      </Button
+      >
+      <Button type="error" size="small" @click="remove(row)">删除</Button>
+    </template>
+  </Table>
+
+  <!-- 分页 -->
+  <div style="margin: 10px; overflow: hidden">
+    <div style="float: right">
+      <Page
+        show-total
+        show-elevator
+        :total="this.total"
+        :current="this.searchParam.current"
+        :page-size="this.searchParam.size"
+        @on-change="changePage"
+      >
+      </Page>
+    </div>
+  </div>
+</div>
